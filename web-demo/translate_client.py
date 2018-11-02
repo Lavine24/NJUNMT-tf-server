@@ -32,7 +32,7 @@ class NJUNMTClient(object):
         self.socket.connect(addr)
         # 接收欢迎消息:
         # print(self.socket.recv(1024).decode('utf-8'))
-        self.reg_remove_space = re.compile('[ \t]')
+        self.reg_remove_space = re.compile('[ \t]+')
 
     def close(self):
         request = wrap_message(command="control", data="close")
