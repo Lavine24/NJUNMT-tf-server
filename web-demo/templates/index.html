@@ -1,0 +1,81 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>NJUNMT Demo</title>
+    <!-- Bootstrap -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+</head>
+
+<body>
+    <div id="LG" class="container-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                <h2>
+                    南京大学神经机器翻译系统
+                </h2>
+                <p>
+                    这是南京大学在线神经机器翻译系统（NJUNMT）Demo
+                </p>
+                <p>
+                    <a class="btn" href="http://nlp.nju.edu.cn/">查看更多 »</a>
+                </p>
+                <div class="row-fluid">
+                    <form class="form" action="/" method="post">
+                        <fieldset>
+                            <legend contenteditable="false">模型选择</legend>
+
+                            <span class="help-block" contenteditable="false"> 当前模型： {{model_dirs}} </span>
+                            <div class="input-append">
+                                <input type="text" placeholder="输入模型文件夹路径" style="height: auto" name="model_dir">
+                                <button type="submit" class="btn btn-primary" contenteditable="true" name="action" value="load_model">加载</button>
+                            </div>
+                            <legend></legend>
+                        </fieldset>
+
+                        <fieldset>
+                            <div class="span6">
+                                <div class="input-append">
+                                    <select name="Source" style="width: 80px">
+                                        <option value="Zh">中文</option>
+                                            <!-- <option value="Zh">中文</option> -->
+                                        </select>
+                                    </div>
+                                    <legend></legend>
+                                <label>Input:</label>
+                                <textarea name="source" class="input-block-level" placeholder="今天天气不错哦" style="resize: none; margin: 0px; height: 200px;">{{ source }}</textarea>
+                            </div>
+                            <div class="span6">
+                                <!-- <legend> -->
+                                    <div class="input-append">
+                                        <select name="Target" style="width: 80px">
+                                            <option value="En">English</option>
+                                            <!-- <option value="Zh">中文</option> -->
+                                        </select>
+                                        <button class="btn btn-primary" type="submit" name="action" value="translate">Translate</button>
+                                    </div>
+                                <legend></legend>
+                                <!-- </legend> -->
+                                <label>Translation:</label>
+                                <textarea name="translation" readonly class="input-block-level" style="resize: none; margin: 0px; height: 200px;" placeholder="How good a day">{{ translation }}</textarea>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+                <dl class="">
+                    <dt style="text-align: center;">
+                        <span style="color: rgb(102, 102, 102); font-size: 13px; font-weight: 400; text-align: center;">Copyright © 2018&nbsp;</span>
+                        <a href="http://nlp.nju.edu.cn/" title="njunlp" style="color: #900b09; font-size: 13px; font-weight: 400; text-align: center;">nlp.nju.edu.cn&nbsp;</a>
+                        <span style="color: rgb(102, 102, 102); font-size: 13px; font-weight: 400; text-align: center;">All Rights Reserved.</span>
+                        <br>
+                    </dt>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <script src="http://code.jquery.com/jquery.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+</body>
+
+</html>

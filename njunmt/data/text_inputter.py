@@ -73,6 +73,7 @@ def pack_feed_dict(name_prefixs, origin_datas, paddings, input_fields):
             n_samples_per_gpu += 1
 
         def _feed_batchs(_start_idx, _inpf):
+
             if _start_idx * n_samples_per_gpu >= n_samples:
                 return 0
             x, x_len = padding_batch_data(
@@ -83,7 +84,7 @@ def pack_feed_dict(name_prefixs, origin_datas, paddings, input_fields):
 
         parallels = repeat_n_times(
             n_devices, _feed_batchs,
-            range(n_devices), input_fields)
+            list(range(n_devices)), input_fields)
         data["feed_dict"]["parallels"] = parallels
 
     if isinstance(name_prefixs, six.string_types):
