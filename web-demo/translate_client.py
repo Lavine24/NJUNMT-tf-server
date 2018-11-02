@@ -21,7 +21,15 @@ import json
 
 
 def wrap_message(**args):
-    return bytes(json.dumps(args), encoding="UTF-8")
+    # return bytes(json.dumps(args), encoding="UTF-8")
+    return json.dumps(args).encode()
+
+
+def unwrap_message(json_str):
+    try:
+        return json.loads(json_str.decode())
+    except:
+        return {"command": "control", "content": "error"}
 
 
 class NJUNMTClient(object):
@@ -67,14 +75,11 @@ class NJUNMTClient(object):
         self.socket.sendall(request)
 
         # 接收服务端返回的翻译结果
-        response = str(self.socket.recv(1024 * 1024 * 8).strip(), 'UTF-8')
+        response = unwrap_message(self.socket.recv(1024 * 1024 * 8).strip())
 
         if debug:
             print("{} translation: {}".format(user_ip, response))
 
-        response = json.loads(response.strip())
-
-        # print(response["translation"])
         return response
 
 

@@ -12,14 +12,27 @@ from __future__ import division
 from __future__ import print_function
 
 from njunmt.ensemble_experiment import *
-
-import socketserver
-
 import json
+import sys
+import errno
+import socket
+
+if sys.version_info[0] < 3:
+    import SocketServer as socketserver
+else:
+    import socketserver
 
 
-def wrap_response(**args):
-    return bytes(json.dumps(args), encoding="UTF-8")
+def wrap_message(**args):
+    # return bytes(json.dumps(args), encoding="UTF-8")
+    return json.dumps(args).encode()
+
+
+def unwrap_message(json_str):
+    try:
+        return json.loads(json_str.decode())
+    except:
+        return {"command": "control", "content": "error"}
 
 
 class SimpleEnsembleExperiment(EnsembleExperiment):
@@ -117,7 +130,7 @@ class TranslateServer(socketserver.TCPServer):
         self._experiment.reload_model(model_dirs)
 
 
-class TranslateRequestHandler(socketserver.BaseRequestHandler):
+class TranslateRequestHandler(socketserver.BaseRequestHandler, object):
     """
     The request handler class for our server.
 
@@ -128,7 +141,7 @@ class TranslateRequestHandler(socketserver.BaseRequestHandler):
 
     def __init__(self, request, client_address, server):
         self.experiment_spec = server.experiment_spec
-        super().__init__(request, client_address, server)
+        super(TranslateRequestHandler, self).__init__(request, client_address, server)
 
     def preprocess_raw(self, raw_data):
         """
@@ -144,10 +157,7 @@ class TranslateRequestHandler(socketserver.BaseRequestHandler):
                 "data": tf feeding_data (if not translate then None)
             }
         """
-        try:
-            msg = json.loads(raw_data)
-        except Exception:
-            return {"command": "control", "content": "error"}
+        msg = unwrap_message(raw_data)
 
         if msg["command"] == "translate":
             lines = msg["content"].strip().split("\n")
@@ -170,7 +180,7 @@ class TranslateRequestHandler(socketserver.BaseRequestHandler):
 
         while True:
             try:
-                raw_data = str(self.request.recv(1024).strip(), "UTF-8")  # json string
+                raw_data = self.request.recv(1024).strip()  # json string
                 print(raw_data)
 
                 # preprocess raw_data to request (dict)
@@ -197,7 +207,7 @@ class TranslateRequestHandler(socketserver.BaseRequestHandler):
 
                     sources = "\n".join(sources)
                     trans_outputs = "\n".join(trans_outputs)
-                    response = wrap_response(status="success", info="", source=sources, translation=trans_outputs,
+                    response = wrap_message(status="success", info="", source=sources, translation=trans_outputs,
                                              model_info=self.experiment_spec["model_info"])
 
                 elif request["command"] == "control":
@@ -207,17 +217,17 @@ class TranslateRequestHandler(socketserver.BaseRequestHandler):
                 elif request["command"] == "reload":
                     new_model_dirs = request["content"]
                     self.server.reload_model(new_model_dirs)
-                    response = wrap_response(status="success",
+                    response = wrap_message(status="success",
                                              info="Reloaded model from {}".format(new_model_dirs),
                                              model_info=self.experiment_spec["model_info"])
 
                 self.request.sendall(response)
 
             except Exception as e:
-                response = wrap_response(status="error")
+                response = wrap_message(status="error")
                 try:
                     self.request.sendall(response)
-                except BrokenPipeError:
+                except socket.error as e:
                     print("Close connection from {}:{}.".format(*self.client_address))
                     break
 
