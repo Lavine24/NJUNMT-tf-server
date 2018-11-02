@@ -40,8 +40,8 @@ class NJUNMTClient(object):
         self.socket.close()
 
     def preprocess(self, s):
-        out = self.reg_remove_space.sub('', s)
-        out = ' '.join(jieba.cut(out))
+        out = ' '.join(jieba.cut(s))
+        out = self.reg_remove_space.sub(' ', out)
         return out
 
     def request(self, commnad, content, user_ip='127.0.0.1', debug=False):
@@ -55,7 +55,8 @@ class NJUNMTClient(object):
             print("{} source: {}".format(user_ip, content))
 
         # 对文本进行前处理
-        # source = self.preprocess(source)
+        if commnad == "translate":
+            content = self.preprocess(content)
 
         request = wrap_message(command=commnad, content=content)
 
